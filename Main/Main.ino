@@ -6,42 +6,54 @@
  *  Website:  www.mygubbins.org
  */
  
-// Temperature and humidity meter libraries
-#include <DHT.h>
-#define DHTPIN 5 //On pin G5 
-#define DHTTYPE DHT11
+#include <Arduino.h>
 
-//Display libraries
+//Display librarys 
 #include <U8g2lib.h>
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 
-
-//Garden house libraries
-#include "HumiditySensor.h"
-
-//Other libraries
-#include <Arduino.h>
- 
-// Define Relai pins
-const int RELAI1 = 13; //On pin G13
-const int RELAI2 = 17; //On pin G17
-const int RELAI3 = 33; //On pin G33
-
-
-
 void setup() {
-// Relais
-pinMode(RELAI1, OUTPUT); 
-pinMode(RELAI2, OUTPUT);
-pinMode(RELAI3, OUTPUT);
+  
+  u8g2.begin();
 }
+
 
 void loop() {
+  
+  int _ocean = 155; 
+  int _desert = 380;
+  
+  byte humiditySensorOne = map(analogRead(A0), _ocean, _desert, 100, 0);
+  byte humiditySensorTwo = map(analogRead(A1), _ocean, _desert, 100, 0);
+  byte humiditySensorThree = map(analogRead(A2), _ocean, _desert, 100, 0);
 
-while(true)
-{
-b
-}
-
+  u8g2.clearBuffer(); 
+  
+  u8g2.firstPage();
+  do{
+  u8g2.setFont(u8g2_font_helvB08_tf); 
+  u8g2.drawStr(0,10,"Relative humidity");
+  u8g2.setCursor(0, 30);
+  u8g2.print("Sensor 1: ");
+  u8g2.print(humiditySensorOne); 
+  u8g2.print(" %");
+  u8g2.setCursor(0, 43);
+  u8g2.print("Sensor 2: ");
+  u8g2.print(humiditySensorTwo);
+  u8g2.print(" %");
+  u8g2.setCursor(0, 56);
+  u8g2.print("Sensor 3: ");
+  u8g2.print(humiditySensorThree);
+  u8g2.print(" %");
+  u8g2.sendBuffer();          
+  }while(u8g2.nextPage());
+  
+  delay(1000);   
 }
